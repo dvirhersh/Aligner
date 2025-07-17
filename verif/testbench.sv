@@ -6,7 +6,6 @@ module testbench ();
     import cfs_algn_test_pkg::*;
 
     reg clk;
-
     initial begin
         clk = 0;
         forever begin
@@ -14,27 +13,38 @@ module testbench ();
         end
     end
 
-    reg reset_n;
-
     initial begin
-        reset_n = 1;
+        apb_if.preset_n = 1;
         #6ns;
-        reset_n = 0;
+        apb_if.preset_n = 0;
         #30ns;
-        reset_n = 1;
+        apb_if.preset_n = 1;
     end
+
+    cfs_apb_if apb_if(.pclk(clk));
 
     initial begin
 
         $dumpfile("dump.vcd");
         $dumpvars;
 
+        uvm_config_db#(virtual cfs_apb_if)::set(null, "uvm_test_top.env.apb_agent", "vif", apb_if);
+
         run_test("cfs_algn_test_reg_access");
     end
 
     cfs_aligner dut(
         .clk(    clk),
-        .reset_n(reset_n)
+        .reset_n(apb_if.preset_n),
+
+        .paddr(  apb_if.paddr),
+        .pwrite( apb_if.pwrite),
+        .penable(apb_if.penable),
+        .psel(   apb_if.psel),
+        .pwdata( apb_if.pwdata),
+        .pready( apb_if.pready),
+        .prdata( apb_if.prdata),
+        .pslverr(apb_if.pslverr)
     );
 
 endmodule
