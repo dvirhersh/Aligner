@@ -9,4 +9,6 @@
 
     typedef bit[`CFS_APB_MAX_DATA_WIDTH-1:0] cfs_apb_data;
 
+    typedef enum bit {CFS_APB_OKAY = 0, CFS_APB_ERR = 1} cfs_apb_response;
+
 `endif
