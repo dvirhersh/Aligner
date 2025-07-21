@@ -12,16 +12,33 @@
         virtual task run_phase(uvm_phase phase);
             phase.raise_objection(this, "TEST_DONE");
 
-            `uvm_info("DEBUG", "start of test", UVM_LOW)
-            #100ns;
+            #(100ns);
 
-            for(int i = 0; i < 10; i++) begin
-                cfs_apb_item_drv item = cfs_apb_item_drv::type_id::create("item");
+            fork
+            begin
+                cfs_apb_sequence_simple seq_simple = cfs_apb_sequence_simple::type_id::create("seq_simple");
 
-                void'(std::randomize(item));
+                void'(seq_simple.randomize() with {item.addr == 'h222;});
 
-                `uvm_info("DEBUG", $sformatf("[%0d] item: %0s", i, item.convert2string()), UVM_LOW)
+                seq_simple.start(env.apb_agent.sequencer);
             end
+
+            begin
+                cfs_apb_sequence_rw seq_rw = cfs_apb_sequence_rw::type_id::create("seq_rw");
+
+                void'(seq_rw.randomize() with {addr == 'h4;});
+
+                seq_rw.start(env.apb_agent.sequencer);
+            end
+
+            begin
+                cfs_apb_sequence_random seq_random = cfs_apb_sequence_random::type_id::create("seq_random");
+
+                void'(seq_random.randomize() with {num_items == 3;});
+
+                seq_random.start(env.apb_agent.sequencer);
+            end
+            join
 
             `uvm_info("DEBUG", "this is the end of the test", UVM_LOW)
 
@@ -31,3 +48,4 @@
     endclass
 
 `endif
+

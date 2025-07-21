@@ -1,6 +1,6 @@
 `include "tests/cfs_algn_test_pkg.sv"
 
-module testbench ();
+module testbench();
 
     import uvm_pkg::*;
     import cfs_algn_test_pkg::*;
@@ -39,8 +39,8 @@ module testbench ();
 
         .paddr(  apb_if.paddr),
         .pwrite( apb_if.pwrite),
-        .penable(apb_if.penable),
         .psel(   apb_if.psel),
+        .penable(apb_if.penable),
         .pwdata( apb_if.pwdata),
         .pready( apb_if.pready),
         .prdata( apb_if.prdata),
