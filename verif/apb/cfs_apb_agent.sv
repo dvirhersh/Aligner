@@ -39,6 +39,7 @@
             end
 
             if (agent_config.get_active_passive() == UVM_ACTIVE) begin
+                driver.agent_config = agent_config;
                 driver.seq_item_port.connect(sequencer.seq_item_export);
             end
         endfunction
