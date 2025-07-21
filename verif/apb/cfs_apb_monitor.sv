@@ -49,6 +49,14 @@
             while(vif.pready !== 1) begin
                 @(posedge vif.pclk);
                 item.length++;
+
+                // 5. APB transfer can not have an infinite length
+                if (agent_config.get_has_checks()) begin
+                    if(item.length >= agent_config.get_stuck_threshold()) begin
+                        `uvm_error("PROTOCOL_ERROR", $sformatf("The APB transfer reached the stuck
+                        threshold of %0d clock cycles", item.length))
+                    end
+                end
             end
 
             item.response = cfs_apb_response'(vif.pslverr);

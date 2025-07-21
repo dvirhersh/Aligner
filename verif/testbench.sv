@@ -24,10 +24,6 @@ module testbench();
     cfs_apb_if apb_if(.pclk(clk));
 
     initial begin
-
-        $dumpfile("dump.vcd");
-        $dumpvars;
-
         uvm_config_db#(virtual cfs_apb_if)::set(null, "uvm_test_top.env.apb_agent", "vif", apb_if);
 
         run_test("cfs_algn_test_reg_access");

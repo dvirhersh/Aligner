@@ -49,14 +49,17 @@
                 vif.pwdata <= item.data;
             end
 
+            // Setup phase
             @(posedge vif.pclk);
 
+            // Access phase
             vif.penable <= 1;
 
             while(vif.pready !== 1) begin
                 @(posedge vif.pclk);
             end
 
+            // Exit Access phase
             vif.psel    <= 0;
             vif.penable <= 0;
             vif.pwrite  <= 0;
