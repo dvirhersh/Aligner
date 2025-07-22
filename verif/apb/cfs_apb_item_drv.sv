@@ -6,11 +6,11 @@
         rand int unsigned pre_drive_delay;
         rand int unsigned post_drive_delay;
 
-        constraint pre_drive_delay_default {
+        constraint pre_drive_delay_default_c {
             soft pre_drive_delay <= 5;
         }
 
-        constraint post_drive_delay_default {
+        constraint post_drive_delay_default_c {
             soft post_drive_delay <= 5;
         }
 

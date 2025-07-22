@@ -2,10 +2,10 @@
 // File:        cfs_synch_fifo.v
 // Author:      Cristian Florin Slav
 // Date:        2023-06-26
-// Description: Syncronization FIFO to move data from the 'push_clk' clock 
+// Description: Syncronization FIFO to move data from the 'push_clk' clock
 //              domain to the 'pop_clk' clock domain.
-//              When used in a Clock Domain Crossing scenario (CDC = 1), 
-//              due to synchronization requirements, data is passed slower so 
+//              When used in a Clock Domain Crossing scenario (CDC = 1),
+//              due to synchronization requirements, data is passed slower so
 //              delay cycles are to be expected.
 ///////////////////////////////////////////////////////////////////////////////
 `ifndef CFS_SYNCH_FIFO_V
@@ -17,7 +17,7 @@
      //Clock Domain Crossing
      //Set this parameter to 0 only if push_clk and pop_clk are tied to the same clock signal.
      parameter CDC        = 1,
-    
+
     localparam CNT_WIDTH = $clog2(FIFO_DEPTH)
   ) (
     input                       reset_n,
@@ -32,7 +32,7 @@
 
     //Empty flag - in PUSH clock domain
     output wire                 push_empty,
-    
+
     //FIFO level - in PUSH clock domain
     output reg[CNT_WIDTH:0]     push_fifo_lvl,
 
@@ -46,7 +46,7 @@
 
     //Empty flag - in POP clock domain
     output wire                 pop_empty,
-    
+
     //FIFO level - in POP clock domain
     output reg[CNT_WIDTH:0]     pop_fifo_lvl
   );
@@ -98,7 +98,7 @@
         next_wr_ptr_push = wr_ptr_push + 1;
       end
     end
-    
+
     always@(posedge push_clk or negedge reset_n) begin
       if(reset_n == 0) begin
         push_fifo_lvl_dly  <= 0;
@@ -107,7 +107,7 @@
         push_fifo_lvl_dly <= push_fifo_lvl;
       end
     end
-    
+
     always@(posedge pop_clk or negedge reset_n) begin
       if(reset_n == 0) begin
         pop_fifo_lvl_dly  <= 0;
@@ -116,10 +116,10 @@
         pop_fifo_lvl_dly <= pop_fifo_lvl;
       end
     end
-    
+
     assign push_empty = (push_fifo_lvl == 0);
     assign push_full  = (push_fifo_lvl == FIFO_DEPTH);
-    
+
     always@(posedge push_clk or negedge reset_n) begin
       if(reset_n == 0) begin
         wr_ptr_push <= 0;
@@ -145,7 +145,7 @@
 
     assign pop_empty = (pop_fifo_lvl == 0);
     assign pop_full  = (pop_fifo_lvl == FIFO_DEPTH);
-    
+
     always@(posedge pop_clk or negedge reset_n) begin
       if(reset_n == 0) begin
         rd_ptr_pop <= 0;
@@ -156,7 +156,7 @@
         end
       end
     end
-    
+
     always_comb begin
       if(wr_ptr_push == rd_ptr_push) begin
         if(push_fifo_lvl_dly >= FIFO_DEPTH - 1) begin

@@ -39,7 +39,8 @@
             super.connect_phase(phase);
 
             if (!uvm_config_db#(virtual cfs_apb_if)::get(this, "", vif_name, vif)) begin
-                `uvm_fatal("APB_NO_VIF", $sformatf("Could not get from the database the APB virtual interface using name \"%0s\"", vif_name))
+                `uvm_fatal("APB_NO_VIF", $sformatf("Could not get from the database the APB "+
+                           "virtual interface using name \"%0s\"", vif_name))
             end
             else begin
                 agent_config.set_vif(vif);

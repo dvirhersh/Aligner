@@ -3,7 +3,7 @@
 
     class cfs_apb_item_mon extends cfs_apb_item_base;
 
-        cfs_apb_response response;
+        cfs_apb_response_e response;
 
         //Lenght, in clock cycles, of the APB transfer
         int unsigned length;

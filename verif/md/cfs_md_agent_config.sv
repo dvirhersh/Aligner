@@ -1,15 +1,14 @@
-`ifndef CFS_APB_AGENT_CONFIG_SV
-    `define CFS_APB_AGENT_CONFIG_SV
+`ifndef CFS_MD_AGENT_CONFIG_SV
+    `define CFS_MD_AGENT_CONFIG_SV
 
-    class cfs_apb_agent_config extends uvm_component;
+    class cfs_md_agent_config extends uvm_component;
 
-        local cfs_apb_vif             vif;
+        // local cfs_md_vif             vif;
         local uvm_active_passive_enum active_passive;
         local bit                     has_checks;
         local bit                     has_coverage;
-        local int unsigned            stuck_threshold;
 
-        `uvm_component_utils(cfs_apb_agent_config)
+        `uvm_component_utils(cfs_md_agent_config)
 
         function new(string name = "", uvm_component parent);
             super.new(name, parent);
@@ -17,7 +16,6 @@
             active_passive  = UVM_ACTIVE;
             has_coverage    = 1;
             has_checks      = 1;
-            stuck_threshold = 1000;
         endfunction
 
         virtual function uvm_active_passive_enum get_active_passive();
@@ -48,31 +46,18 @@
             has_coverage = value;
         endfunction
 
-        virtual function int unsigned get_stuck_threshold();
-            return stuck_threshold;
-        endfunction
-
-        virtual function void set_stuck_threshold(int unsigned value);
-            if (value <= 2) begin
-                `uvm_error("ALGORITHM_ISSUE",
-                        $sformatf("Tried to set stuck_threshold to value %d" +
-                                  " but the minimum length of an APB transfer is 2", value))
-            end
-            stuck_threshold = value;
-        endfunction
-
-        virtual function cfs_apb_vif get_vif();
+        virtual function cfs_md_vif get_vif();
             return vif;
         endfunction
 
-        virtual function void set_vif(cfs_apb_vif value);
+        virtual function void set_vif(cfs_md_vif value);
             if(vif == null) begin
                 vif = value;
 
                 set_has_checks(get_has_checks());
             end
             else begin
-                `uvm_fatal("ALGORITHM_ISSUE", "Trying to set the APB virtual interface more than "+
+                `uvm_fatal("ALGORITHM_ISSUE", "Trying to set the md virtual interface more than "
                            "once")
             end
         endfunction
@@ -81,11 +66,11 @@
             super.start_of_simulation_phase(phase);
 
             if(get_vif() == null) begin
-                `uvm_fatal("ALGORITHM_ISSUE", "The APB virtual interface is not configured at "+
+                `uvm_fatal("ALGORITHM_ISSUE", "The md virtual interface is not configured at "
                            "\"Start of simulation\" phase")
             end
             else begin
-                `uvm_info("APB_CONFIG", "The APB virtual interface is configured at \"Start of "+
+                `uvm_info("md_CONFIG", "The md virtual interface is configured at \"Start of "
                           "simulation\" phase", UVM_DEBUG)
             end
         endfunction
@@ -100,9 +85,8 @@
 
                 if(vif.has_checks != get_has_checks()) begin
                     `uvm_error("ALGORITHM_ISSUE", $sformatf("Can not change \"has_checks\" from "+
-                               "APB interface directly - use %0s.set_has_checks()",
+                               "md interface directly - use %0s.set_has_checks()",
                                get_full_name()))
-
                 end
             end
 

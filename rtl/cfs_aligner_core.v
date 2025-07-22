@@ -3,66 +3,66 @@
 // Author:      Cristian Florin Slav
 // Date:        2026-06-27
 // Description: Module to align RX data and send it on the TX interface.
-//              
+//
 //              This module has three interfaces:
-//                1. A standard AMBA 3 APB slave interface for accessing 
+//                1. A standard AMBA 3 APB slave interface for accessing
 //                   control and status registers.
 //                2. A slave memory data (MD) through which the module receives
 //                   the unaligned information.
-//                3. A master memory data (MD) through which the module 
+//                3. A master memory data (MD) through which the module
 //                   transmits the aligned information.
-//              
+//
 //              The memory data (MD) protocol has the following rules:
-//                1. Valid (OFFSET, SIZE) combinations are the ones for which 
+//                1. Valid (OFFSET, SIZE) combinations are the ones for which
 //                   the following rules are true at the same time:
 //                   1.1. SIZE > 0
 //                   1.2. ((ALGN_DATA_WIDTH / 8) + OFFSET) % SIZE = 0
 //                2. A transfer starts when VALID becomes 1
 //                3. A transfer ends when VALID is 1 and READY is 1
 //                4. Once VALID is 1, it must stay constant until READY becomes 1.
-//                5. DATA, OFFSET and SIZE must be constant fro mthe begining 
+//                5. DATA, OFFSET and SIZE must be constant fro mthe begining
 //                   to the end of the transfer.
-//                6. ERR is valid only at the end of the transfer, 
+//                6. ERR is valid only at the end of the transfer,
 //                   when READY is 1.
-//              
-//              
-//              The alignment is done according to the CTRL.OFFSET and 
+//
+//
+//              The alignment is done according to the CTRL.OFFSET and
 //              CTRL.SIZE configuration.
-//              
-//              Any received transfer is dropped if the (OFFSET, SIZE) 
-//              combination is not valid. The number of dropped transfers are 
+//
+//              Any received transfer is dropped if the (OFFSET, SIZE)
+//              combination is not valid. The number of dropped transfers are
 //              counted in STATUS.DROP_CNT field.
-//              
-//              The module has two FIFOs - one for holding the incomming 
+//
+//              The module has two FIFOs - one for holding the incomming
 //              transfers and one for holding the outgoing transfers.
-//              The current level of each of the FIFO can be read from the 
+//              The current level of each of the FIFO can be read from the
 //              STATUS register, via STATUS.RX_LVL and STATUS.TX_LVL.
-//              
-//              The module also has a sticky interrupts register, IRQ with the 
+//
+//              The module also has a sticky interrupts register, IRQ with the
 //              following interrupts:
 //                RX_FIFO_EMPTY - becomes 1 when RX_FIFO became 1 - will remain
-//                                1 until it is cleared by software, regardless 
+//                                1 until it is cleared by software, regardless
 //                                if RX_FIFO became not empty
-//                RX_FIFO_FULL  - becomes 1 when RX_FIFO became 1 - will remain 
-//                                1 until it is cleared by software, regardless 
+//                RX_FIFO_FULL  - becomes 1 when RX_FIFO became 1 - will remain
+//                                1 until it is cleared by software, regardless
 //                                if RX_FIFO became not full
-//                TX_FIFO_EMPTY - becomes 1 when TX_FIFO became 1 - will remain 
-//                                1 until it is cleared by software, regardless 
+//                TX_FIFO_EMPTY - becomes 1 when TX_FIFO became 1 - will remain
+//                                1 until it is cleared by software, regardless
 //                                if TX_FIFO became not empty
-//                TX_FIFO_FULL  - becomes 1 when TX_FIFO became 1 - will remain 
-//                                1 until it is cleared by software, regardless 
+//                TX_FIFO_FULL  - becomes 1 when TX_FIFO became 1 - will remain
+//                                1 until it is cleared by software, regardless
 //                                if TX_FIFO became not full
-//                MAX_DROP      - becomes 1 when STATUS.CNT_DROP reached its 
-//                                maximum value - will remain 1 until it is 
+//                MAX_DROP      - becomes 1 when STATUS.CNT_DROP reached its
+//                                maximum value - will remain 1 until it is
 //                                cleared by software.
-//              
+//
 //              All the interrupts are ORed to generate a pulse irq output.
-//              
-//              The interrupts which are taking part in the generation of the 
+//
+//              The interrupts which are taking part in the generation of the
 //              irq output are controled via IRQ_EN register.
-//              
+//
 //              The registers available through the APB interface are:
-//              
+//
 //              CTRL   @'h0000
 //                CTRL[2:0]   = SIZE          - Size, in bytes, of the aligned data.
 //                                              Value 0 is illegal and a write atempt
@@ -70,24 +70,24 @@
 //                CTRL[7:3]   = reserved
 //                CTRL[9:8]   = OFFSET        - Offset, in bytes, of the aligned data.
 //                CTRL[15:10] = reserved
-//                CTRL[16:16] = CLR           - Clear the status counter (CNT_DROP) 
+//                CTRL[16:16] = CLR           - Clear the status counter (CNT_DROP)
 //                                              when writing 1.
 //                                              Writing 0 has no effect.
 //                                              This is a write-only register field,
 //                                              a read will always return 0.
 //                CTRL[31:17]  = reserved
-//              
-//              
+//
+//
 //              STATUS @'h000C
-//                STATUS[7:0]   = CNT_DROP    - Number of dropped unaligned accesses. 
-//                                              The counter does not wrap once it reaches 
+//                STATUS[7:0]   = CNT_DROP    - Number of dropped unaligned accesses.
+//                                              The counter does not wrap once it reaches
 //                                              the maximum value.
 //                STATUS[11:8]  = RX_LVL      - Fill level of the RX FIFO
 //                STATUS[15:12] = reserved
 //                STATUS[19:16] = TX_LVL      - Fill level of the TX FIFO
 //                STATUS[31:20] = reserved
-//              
-//              
+//
+//
 //              IRQEN @'h00F0
 //                IRQEN[0:0]    = RX_FIFO_EMPTY - Enable IRQ.RX_FIFO_EMPTY in the irq output.
 //                IRQEN[1:1]    = RX_FIFO_FULL  - Enable IRQ.RX_FIFO_FULL in the irq output.
@@ -95,36 +95,36 @@
 //                IRQEN[3:3]    = TX_FIFO_FULL  - Enable IRQ.TX_FIFO_FULL in the irq output.
 //                IRQEN[4:4]    = MAX_DROP      - Enable IRQ.MAX_DROP in the irq output.
 //                IRQEN[31:5]   = reserved
-//              
-//              
+//
+//
 //              IRQ @'h00F4
-//                IRQ[0:0]    = RX_FIFO_EMPTY - RX FIFO became empty (sticky). 
-//                                              If cleared while RX FIFO is still empty 
-//                                              interrupt will not be set immediately. 
-//                                              It will be set again once the RX FIFO 
-//                                              becomes empty (e.g. STATUS.RX_LVL 
+//                IRQ[0:0]    = RX_FIFO_EMPTY - RX FIFO became empty (sticky).
+//                                              If cleared while RX FIFO is still empty
+//                                              interrupt will not be set immediately.
+//                                              It will be set again once the RX FIFO
+//                                              becomes empty (e.g. STATUS.RX_LVL
 //                                              transitions from 1 to 0).
 //                IRQ[1:1]    = RX_FIFO_FULL  - RX FIFO became full (sticky).
-//                                              If cleared while RX FIFO is still full 
-//                                              interrupt will not be set immediately. 
+//                                              If cleared while RX FIFO is still full
+//                                              interrupt will not be set immediately.
 //                                              It will be set again once the RX FIFO becomes
 //                                              full (e.g. STATUS.RX_LVL transitions from MAX-1 to MAX).
 //                IRQ[2:2]    = TX_FIFO_EMPTY - TX FIFO became empty (sticky).
-//                                              If cleared while TX FIFO is still 
-//                                              empty interrupt will not be set immediately. 
-//                                              It will be set again once the TX FIFO 
+//                                              If cleared while TX FIFO is still
+//                                              empty interrupt will not be set immediately.
+//                                              It will be set again once the TX FIFO
 //                                              becomes empty (e.g. STATUS.TX_LVL transitions from 1 to 0).
 //                IRQ[3:3]    = TX_FIFO_FULL  - TX FIFO became full (sticky).
-//                                              If cleared while TX FIFO is still 
-//                                              full interrupt will not be set immediately. 
-//                                              It will be set again once the TX 
-//                                              FIFO becomes full (e.g. STATUS.TX_LVL 
+//                                              If cleared while TX FIFO is still
+//                                              full interrupt will not be set immediately.
+//                                              It will be set again once the TX
+//                                              FIFO becomes full (e.g. STATUS.TX_LVL
 //                                              transitions from MAX-1 to MAX).
 //                IRQ[4:4]    = MAX_DROP      - STATUS.CNT_DROP reached its maximum value (sticky).
-//                                              If cleared while STATUS.CNT_DROP 
-//                                              is still MAX interrupt will not be set immediately. 
-//                                              It will be set again once the STATUS.CNT_DROP 
-//                                              becomes MAX (e.g. STATUS.CNT_DROP 
+//                                              If cleared while STATUS.CNT_DROP
+//                                              is still MAX interrupt will not be set immediately.
+//                                              It will be set again once the STATUS.CNT_DROP
+//                                              becomes MAX (e.g. STATUS.CNT_DROP
 //                                              transitions from MAX-1 to MAX).
 //                IRQ[31:5]   = reserved
 ///////////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@
     parameter APB_ADDR_WIDTH  = 16,
     parameter ALGN_DATA_WIDTH = 32,
     parameter FIFO_DEPTH      = 8,
-    
+
      //Clock Domain Crossing - RX domain to register access domain
      //Set this parameter to 0 only if md_rx_clk and pclk are tied to the same clock signal.
      parameter CDC_RX_TO_REG  = 1,
@@ -365,7 +365,7 @@
       .tx_fifo_empty  (tx_fifo_2_regs_fifo_empty),
       .tx_fifo_full   (tx_fifo_2_regs_fifo_full),
       .max_drop       (rx_ctrl_2_regs_status_cnt_drop == (('h1 << STATUS_CNT_DROP_WIDTH) - 1)),
-      
+
       .irq            (irq)
     );
   endmodule

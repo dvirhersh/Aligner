@@ -196,7 +196,7 @@
             end
 
             // //IMPORTANT: DON'T DO THIS IN A REAL PROJECT!!!
-            `uvm_info("DEBUG", $sformatf("Coverage: %0s", coverage2string()), UVM_NONE)
+            // `uvm_info("DEBUG", $sformatf("Coverage: %0s", coverage2string()), UVM_NONE)
         endfunction
 
         virtual task run_phase(uvm_phase phase);

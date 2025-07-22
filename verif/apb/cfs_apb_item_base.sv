@@ -3,7 +3,7 @@
 
     class cfs_apb_item_base extends uvm_sequence_item;
 
-        rand cfs_apb_dir  dir;
+        rand cfs_apb_dir_e  dir;
         rand cfs_apb_addr addr;
         rand cfs_apb_data data;
 

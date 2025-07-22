@@ -36,7 +36,7 @@
             end
 
             item.addr   = vif.paddr;
-            item.dir    = cfs_apb_dir'(vif.pwrite);
+            item.dir    = cfs_apb_dir_e'(vif.pwrite);
             item.length = 1;
 
             if(item.dir == CFS_APB_WRITE) begin
@@ -53,13 +53,13 @@
                 // 5. APB transfer can not have an infinite length
                 if (agent_config.get_has_checks()) begin
                     if(item.length >= agent_config.get_stuck_threshold()) begin
-                        `uvm_error("PROTOCOL_ERROR", $sformatf("The APB transfer reached the stuck
-                        threshold of %0d clock cycles", item.length))
+                        `uvm_error("PROTOCOL_ERROR", $sformatf("The APB transfer reached the stuck"
+                                   +"threshold of %0d clock cycles", item.length))
                     end
                 end
             end
 
-            item.response = cfs_apb_response'(vif.pslverr);
+            item.response = cfs_apb_response_e'(vif.pslverr);
 
             if(item.dir == CFS_APB_READ) begin
                 item.data = vif.prdata;

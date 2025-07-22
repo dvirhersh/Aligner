@@ -4,7 +4,7 @@
 // Date:        2023-06-26
 // Description: TX Controller. The role of this module is to take the aligned
 //              information from the TX FIFO an to send it on the TX interface.
-//              When the TX FIFO is empty it signals this on the TX interface 
+//              When the TX FIFO is empty it signals this on the TX interface
 //              by deasserting the md_tx_valid signal.
 ///////////////////////////////////////////////////////////////////////////////
 `ifndef CFS_TX_CTRL_V
@@ -27,22 +27,22 @@
     output wire[ALGN_SIZE_WIDTH-1:0]   md_tx_size,
     input                              md_tx_ready
     );
-    
+
     localparam int unsigned DATA_MSB = ALGN_DATA_WIDTH-1;
     localparam int unsigned DATA_LSB = 0;
-    
+
     localparam int unsigned OFFSET_MSB = ALGN_DATA_WIDTH+ALGN_OFFSET_WIDTH-1;
     localparam int unsigned OFFSET_LSB = ALGN_DATA_WIDTH;
-    
+
     localparam int unsigned SIZE_MSB = ALGN_DATA_WIDTH+ALGN_OFFSET_WIDTH+ALGN_SIZE_WIDTH-1;
     localparam int unsigned SIZE_LSB = ALGN_DATA_WIDTH+ALGN_OFFSET_WIDTH;
-    
+
     assign pop_ready    = pop_valid & md_tx_ready;
     assign md_tx_valid  = pop_valid;
     assign md_tx_data   = pop_data[DATA_MSB:DATA_LSB];
     assign md_tx_offset = pop_data[OFFSET_MSB:OFFSET_LSB];
     assign md_tx_size   = pop_data[SIZE_MSB:SIZE_LSB];
-    
+
   endmodule
 
 `endif
