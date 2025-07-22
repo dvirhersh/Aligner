@@ -3,6 +3,7 @@
 
     class cfs_algn_test_base extends uvm_test;
 
+        //Environment instance
         cfs_algn_env env;
 
         `uvm_component_utils(cfs_algn_test_base)

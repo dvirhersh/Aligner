@@ -1,11 +1,13 @@
 `ifndef CFS_APB_MONITOR_SV
     `define CFS_APB_MONITOR_SV
 
-    class cfs_apb_monitor extends uvm_monitor;
+    class cfs_apb_monitor extends uvm_monitor implements cfs_apb_reset_handler;
 
         cfs_apb_agent_config agent_config;
 
         uvm_analysis_port#(cfs_apb_item_mon) output_port;
+
+        protected process process_collect_transactions;
 
         `uvm_component_utils(cfs_apb_monitor)
 
@@ -16,12 +18,15 @@
         endfunction
 
         virtual task run_phase(uvm_phase phase);
-            collect_transactions();
-        endtask
-
-        protected virtual task collect_transactions();
             forever begin
-                collect_transaction();
+                fork
+                begin
+                    wait_reset_end();
+                    collect_transactions();
+
+                    disable fork;
+                end
+                join
             end
         endtask
 
@@ -50,11 +55,10 @@
                 @(posedge vif.pclk);
                 item.length++;
 
-                // 5. APB transfer can not have an infinite length
                 if (agent_config.get_has_checks()) begin
                     if(item.length >= agent_config.get_stuck_threshold()) begin
                         `uvm_error("PROTOCOL_ERROR", $sformatf("The APB transfer reached the stuck
-                        threshold of %0d clock cycles", item.length))
+                                   threshold value of %0d", item.length))
                     end
                 end
             end
@@ -72,6 +76,33 @@
             @(posedge vif.pclk);
         endtask
 
+        //Task for collecting all transactions
+        protected virtual task collect_transactions();
+            fork
+                begin
+                    process_collect_transactions = process::self();
+
+                    forever begin
+                        collect_transaction();
+                    end
+
+                end
+            join
+        endtask
+
+        //Task for waiting the reset to be finished
+        protected virtual task wait_reset_end();
+            agent_config.wait_reset_end();
+        endtask
+
+        //Function to handle the reset
+        virtual function void handle_reset(uvm_phase phase);
+            if(process_collect_transactions != null) begin
+                process_collect_transactions.kill();
+
+                process_collect_transactions = null;
+            end
+        endfunction
 
     endclass
 

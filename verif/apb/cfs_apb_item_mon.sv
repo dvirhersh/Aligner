@@ -3,6 +3,7 @@
 
     class cfs_apb_item_mon extends cfs_apb_item_base;
 
+        //Response
         cfs_apb_response response;
 
         //Lenght, in clock cycles, of the APB transfer

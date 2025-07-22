@@ -42,26 +42,30 @@
             cover_index.set_inst_name($sformatf("%s_%s", get_full_name(), "cover_index"));
         endfunction
 
+        //Function to print the coverage information.
+        //This is only to be able to visualize some basic coverage information
+        //in EDA Playground.
+        //DON'T DO THIS IN A REAL PROJECT!!!
         virtual function string coverage2string();
             return {
-                $sformatf("\n   cover_index:              %03.2f%%",
-                                                            cover_index.get_inst_coverage()),
-                $sformatf("\n      index:                 %03.2f%%",
-                                                            cover_index.index.get_inst_coverage())
+                $sformatf("\n   cover_index:              %03.2f%%", cover_index.get_inst_coverage()),
+                $sformatf("\n      index:                 %03.2f%%", cover_index.index.get_inst_coverage())
             };
         endfunction
 
+        //Function used to sample the information
         virtual function void sample(int unsigned value);
             cover_index.sample(value);
         endfunction
+
     endclass
 
-    class cfs_apb_coverage extends uvm_component;
+    class cfs_apb_coverage extends uvm_component implements cfs_apb_reset_handler;
 
-        // //Pointer to agent configuration
+        //Pointer to agent configuration
         cfs_apb_agent_config agent_config;
 
-        // //Port for sending the collected item
+        //Port for sending the collected item
         uvm_analysis_imp_item#(cfs_apb_item_mon, cfs_apb_coverage) port_item;
 
         //Wrapper over the coverage group covering the indices in the PADDR signal
@@ -105,24 +109,23 @@
                 option.comment = "Length of the APB access";
                 bins length_eq_2     = {2};
                 bins length_le_10[8] = {[3:10]};
-                bins length_gt_10    = {[11:$]};
+                bins length_gt_10    = {[11:32]};
 
-            //     illegal_bins length_lt_2 = {[$:1]};
+                illegal_bins length_lt_2 = {[$:1]};
             }
 
             prev_item_delay : coverpoint item.prev_item_delay {
                 option.comment = "Delay, in clock cycles, between two consecutive APB accesses";
                 bins back2back       = {0};
                 bins delay_le_5[5]   = {[1:5]};
-                bins delay_gt_5      = {[6:$]};
+                bins delay_gt_5      = {[6:50]};
             }
 
             response_x_direction : cross response, direction;
 
             trans_direction : coverpoint item.dir {
                 option.comment = "Transitions of APB direction";
-                bins direction_trans[] = (CFS_APB_READ, CFS_APB_WRITE => CFS_APB_READ,
-                                          CFS_APB_WRITE);
+                bins direction_trans[] = (CFS_APB_READ, CFS_APB_WRITE => CFS_APB_READ, CFS_APB_WRITE);
             }
 
         endgroup
@@ -195,22 +198,21 @@
                 endcase
             end
 
-            // //IMPORTANT: DON'T DO THIS IN A REAL PROJECT!!!
-            `uvm_info("DEBUG", $sformatf("Coverage: %0s", coverage2string()), UVM_NONE)
+            //IMPORTANT: DON'T DO THIS IN A REAL PROJECT!!!
+            // `uvm_info("DEBUG", $sformatf("Coverage: %0s", coverage2string()), UVM_NONE)
         endfunction
 
-        virtual task run_phase(uvm_phase phase);
+        //Function to handle the reset
+        virtual function void handle_reset(uvm_phase phase);
             cfs_apb_vif vif = agent_config.get_vif();
 
-            forever begin
-                @(negedge vif.preset_n);
-
-                cover_reset.sample(vif.psel);
-            end
-        endtask
+            cover_reset.sample(vif.psel);
+        endfunction
 
         //Function to print the coverage information.
         //This is only to be able to visualize some basic coverage information
+        //in EDA Playground.
+        //DON'T DO THIS IN A REAL PROJECT!!!
         virtual function string coverage2string();
             string result = {
                 $sformatf("\n   cover_item:              %03.2f%%", cover_item.get_inst_coverage()),
@@ -233,8 +235,7 @@
                 cfs_apb_cover_index_wrapper_base wrapper;
 
                 if($cast(wrapper, children[idx])) begin
-                    result = $sformatf("%s\n\nChild component: %0s%0s", result, wrapper.get_name(),
-                                       wrapper.coverage2string());
+                    result = $sformatf("%s\n\nChild component: %0s%0s", result, wrapper.get_name(), wrapper.coverage2string());
                 end
             end
 

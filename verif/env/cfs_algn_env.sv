@@ -3,6 +3,7 @@
 
     class cfs_algn_env extends uvm_env;
 
+        //APB agent handler
         cfs_apb_agent apb_agent;
 
         `uvm_component_utils(cfs_algn_env)

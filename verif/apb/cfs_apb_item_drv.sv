@@ -3,7 +3,10 @@
 
     class cfs_apb_item_drv extends cfs_apb_item_base;
 
+        //Pre drive delay
         rand int unsigned pre_drive_delay;
+
+        //Post drive delay
         rand int unsigned post_drive_delay;
 
         constraint pre_drive_delay_default {

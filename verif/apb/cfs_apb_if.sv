@@ -48,40 +48,50 @@
             (psel == 1) && (penable == 1);
         endsequence
 
+
+
+
         property penable_at_setup_phase_p;
             @(posedge pclk) disable iff(!preset_n || !has_checks)
             setup_phase_s |-> penable == 0;
         endproperty
 
-        // 1.a.
         PENABLE_AT_SETUP_PHASE_A : assert property(penable_at_setup_phase_p) else
             $error("PENABLE at \"Setup Phase\" is not equal to 0");
+
+
+
+
 
         property penable_entering_access_phase_p;
             @(posedge pclk) disable iff(!preset_n || !has_checks)
             setup_phase_s |=> penable == 1;
         endproperty
 
-        // 1.b.
         PENABLE_ENTERING_SETUP_PHASE_A : assert property(penable_entering_access_phase_p) else
             $error("PENABLE when entering \"Access Phase\" did not became 1");
+
+
+
+
 
         property penable_exiting_access_phase_p;
             @(posedge pclk) disable iff(!preset_n || !has_checks)
             access_phase_s and (pready == 1) |=> penable == 0;
         endproperty
 
-        // 2. PENABLE must be deasserted at the end of the transfer.
         PENABLE_EXITING_SETUP_PHASE_A : assert property(penable_exiting_access_phase_p) else
             $error("PENABLE when exiting \"Access Phase\" did not became 0");
 
-        // 3. Master driven signals must remain constant throughout the transfer
+
+
+
+
         property penable_stable_at_access_phase_p;
             @(posedge pclk) disable iff(!preset_n || !has_checks)
             access_phase_s |-> penable == 1;
         endproperty
 
-        // 3.a.
         PENABLE_STABLE_AT_ACCESS_PHASE_A : assert property(penable_stable_at_access_phase_p) else
             $error("PENABLE was not stable during \"Access Phase\"");
 
@@ -90,7 +100,6 @@
             access_phase_s |-> $stable(pwrite);
         endproperty
 
-        // 3.b.
         PWRITE_STABLE_AT_ACCESS_PHASE_A : assert property(pwrite_stable_at_access_phase_p) else
             $error("PWRITE was not stable during \"Access Phase\"");
 
@@ -99,7 +108,6 @@
             access_phase_s |-> $stable(paddr);
         endproperty
 
-        // 3.c.
         PADDR_STABLE_AT_ACCESS_PHASE_A : assert property(paddr_stable_at_access_phase_p) else
             $error("PADDR was not stable during \"Access Phase\"");
 
@@ -108,11 +116,13 @@
             access_phase_s and (pwrite == 1) |-> $stable(pwdata);
         endproperty
 
-        // 3.d.
         PWDATA_STABLE_AT_ACCESS_PHASE_A : assert property(pwdata_stable_at_access_phase_p) else
             $error("PWDATA was not stable during \"Access Phase\"");
 
-        // 4. APB signals can not have unknown values (e.g. x, z)
+
+
+
+
         property unknown_value_psel_p;
             @(posedge pclk) disable iff(!preset_n || !has_checks)
             $isunknown(psel) == 0;
@@ -126,7 +136,7 @@
             psel == 1 |-> $isunknown(penable) == 0;
         endproperty
 
-        UNKNOWN_VALUE_PENAE_A : assert property(unknown_value_penable_p) else
+        UNKNOWN_VALUE_PENABLE_A : assert property(unknown_value_penable_p) else
             $error("Detected unknown value for APB signal PENABLE");
 
         property unknown_value_pwrite_p;
@@ -177,6 +187,6 @@
         UNKNOWN_VALUE_PSLVERR_A : assert property(unknown_value_pslverr_p) else
             $error("Detected unknown value for APB signal PSLVERR");
 
-  endinterface
+    endinterface
 
 `endif
