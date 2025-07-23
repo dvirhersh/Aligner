@@ -54,7 +54,7 @@ module testbench();
         uvm_config_db#(virtual cfs_md_if#(ALGN_DATA_WIDTH))::set(null, "uvm_test_top.env.md_tx_agent", "vif", md_tx_if);
 
         //Start UVM test and phases
-        run_test("cfs_algn_test_reg_access");
+        run_test("cfs_algn_test_random");
     end
 
     //Instantiate the DUT

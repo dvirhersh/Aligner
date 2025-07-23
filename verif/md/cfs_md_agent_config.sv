@@ -66,7 +66,7 @@
 
         //Getter for the has_checks control field
         virtual function bit get_has_checks();
-            return has_checks;
+        return has_checks;
         endfunction
 
         //Setter for the has_checks control field
@@ -94,7 +94,7 @@
                 @(vif.has_checks);
 
                 if(vif.has_checks != get_has_checks()) begin
-                    `uvm_error("ALGORITHM_ISSUE", $sformatf("Can not change \"has_checks\" from MD interface directly - use %0s.set_has_checks()", get_full_name()))
+                `uvm_error("ALGORITHM_ISSUE", $sformatf("Can not change \"has_checks\" from MD interface directly - use %0s.set_has_checks()", get_full_name()))
                 end
             end
         endtask
