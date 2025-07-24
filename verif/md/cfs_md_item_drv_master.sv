@@ -23,17 +23,17 @@
             soft post_drive_delay <= 5;
         }
 
-        constraint data_default {
-            soft data.size() == 1;
-        }
+        // constraint data_default {
+        //     soft data.size() == 1;
+        // }
 
         constraint data_hard {
             soft data.size() > 0;
         }
 
-        constraint offset_default {
-            soft offset == 0;
-        }
+        // constraint offset_default {
+        //     soft offset == 0;
+        // }
 
         `uvm_object_utils(cfs_md_item_drv_master)
 

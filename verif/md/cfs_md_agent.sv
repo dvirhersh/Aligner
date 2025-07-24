@@ -14,6 +14,8 @@
         //Sequencer handler
         cfs_md_sequencer#(ITEM_DRV) sequencer;
 
+        cfs_md_monitor#(DATA_WIDTH) monitor;
+
         `uvm_component_param_utils(cfs_md_agent#(DATA_WIDTH, ITEM_DRV))
 
         function new(string name = "", uvm_component parent);
@@ -24,6 +26,7 @@
             super.build_phase(phase);
 
             agent_config = cfs_md_agent_config#(DATA_WIDTH)::type_id::create("agent_config", this);
+            monitor      = cfs_md_monitor#(DATA_WIDTH)::type_id::create("monitor", this);
 
             if(agent_config.get_active_passive() == UVM_ACTIVE) begin
                 driver    = cfs_md_driver#(ITEM_DRV)::type_id::create("driver", this);
@@ -43,6 +46,8 @@
             else begin
                 agent_config.set_vif(vif);
             end
+
+            monitor.agent_config = agent_config;
 
             if(agent_config.get_active_passive() == UVM_ACTIVE) begin
                 driver.seq_item_port.connect(sequencer.seq_item_export);

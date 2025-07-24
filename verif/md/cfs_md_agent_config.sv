@@ -17,14 +17,18 @@
         //Switch to enable checks
         local bit has_checks;
 
+        //Delay used when detecting start of an MD transaction in the monitor
+        local time sample_delay_start_tr;
+
         `uvm_component_param_utils(cfs_md_agent_config#(DATA_WIDTH))
 
         function new(string name = "", uvm_component parent);
             super.new(name, parent);
 
-            active_passive = UVM_ACTIVE;
-            has_coverage   = 1;
-            has_checks     = 1;
+            active_passive        = UVM_ACTIVE;
+            has_coverage          = 1;
+            has_checks            = 1;
+            sample_delay_start_tr = 1ns;
         endfunction
 
         //Getter for the MD virtual interface
@@ -76,6 +80,16 @@
             if(vif != null) begin
                 vif.has_checks = has_checks;
             end
+        endfunction
+
+        //Setter for sample_delay_start_tr_detection
+        virtual function void set_sample_delay_start_tr(time value);
+            sample_delay_start_tr = value;
+        endfunction
+
+        //Getter for sample_delay_start_tr_detection
+        virtual function time get_sample_delay_start_tr();
+            return sample_delay_start_tr;
         endfunction
 
         virtual function void start_of_simulation_phase(uvm_phase phase);

@@ -22,8 +22,8 @@
 
             item = cfs_md_item_drv_master::type_id::create("item");
 
-            item.data_default.constraint_mode(0);
-            item.offset_default.constraint_mode(0);
+            // item.data_default.constraint_mode(0);
+            // item.offset_default.constraint_mode(0);
         endfunction
 
         virtual task body();
