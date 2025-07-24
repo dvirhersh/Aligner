@@ -9,11 +9,12 @@
         cfs_md_agent_config#(DATA_WIDTH) agent_config;
 
         //Driver handler
-        cfs_md_driver#(ITEM_DRV) driver;
+        cfs_md_driver#(DATA_WIDTH, ITEM_DRV) driver;
 
         //Sequencer handler
-        cfs_md_sequencer#(ITEM_DRV) sequencer;
+        cfs_md_sequencer_base#(ITEM_DRV) sequencer;
 
+        //Monitor handler
         cfs_md_monitor#(DATA_WIDTH) monitor;
 
         `uvm_component_param_utils(cfs_md_agent#(DATA_WIDTH, ITEM_DRV))
@@ -29,8 +30,8 @@
             monitor      = cfs_md_monitor#(DATA_WIDTH)::type_id::create("monitor", this);
 
             if(agent_config.get_active_passive() == UVM_ACTIVE) begin
-                driver    = cfs_md_driver#(ITEM_DRV)::type_id::create("driver", this);
-                sequencer = cfs_md_sequencer#(ITEM_DRV)::type_id::create("sequencer", this);
+                driver    = cfs_md_driver#(DATA_WIDTH, ITEM_DRV)::type_id::create("driver", this);
+                sequencer = cfs_md_sequencer_base#(ITEM_DRV)::type_id::create("sequencer", this);
             end
         endfunction
 

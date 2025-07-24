@@ -5,10 +5,13 @@
 
         typedef virtual cfs_md_if#(DATA_WIDTH) cfs_md_vif;
 
+        //Pointer to agent configuration
         cfs_md_agent_config agent_config;
 
+        //Port for sending the collected item
         uvm_analysis_port#(cfs_md_item_mon) output_port;
 
+        //Process for collect_transactions() task
         protected process process_collect_transactions;
 
         `uvm_component_param_utils(cfs_md_monitor#(DATA_WIDTH))
@@ -22,12 +25,12 @@
         virtual task run_phase(uvm_phase phase);
             forever begin
                 fork
-                begin
-                    wait_reset_end();
-                    collect_transactions();
+                    begin
+                        wait_reset_end();
+                        collect_transactions();
 
-                    disable fork;
-                end
+                        disable fork;
+                    end
                 join
             end
         endtask
@@ -60,6 +63,8 @@
 
             void'(begin_tr(item));
 
+            `uvm_info("DEBUG", $sformatf("Monitor started collecting item: %0s", item.convert2string()), UVM_NONE)
+
             output_port.write(item);
 
             @(posedge vif.clk);
@@ -82,11 +87,11 @@
         protected virtual task collect_transactions();
             fork
                 begin
-                process_collect_transactions = process::self();
+                    process_collect_transactions = process::self();
 
-                forever begin
-                    collect_transaction();
-                end
+                    forever begin
+                        collect_transaction();
+                    end
 
                 end
             join

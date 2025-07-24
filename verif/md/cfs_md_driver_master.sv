@@ -1,7 +1,8 @@
 `ifndef CFS_MD_DRIVER_MASTER_SV
     `define CFS_MD_DRIVER_MASTER_SV
 
-    class cfs_md_driver_master#(int unsigned DATA_WIDTH = 32) extends cfs_md_driver#(.ITEM_DRV(cfs_md_item_drv_master));
+
+    class cfs_md_driver_master#(int unsigned DATA_WIDTH = 32) extends cfs_md_driver#(.DATA_WIDTH(DATA_WIDTH), .ITEM_DRV(cfs_md_item_drv_master));
 
         typedef virtual cfs_md_if#(DATA_WIDTH) cfs_md_vif;
 
@@ -36,7 +37,7 @@
                 foreach(item.data[idx]) begin
                     bit[DATA_WIDTH-1:0] temp = item.data[idx] << ((item.offset + idx) * 8);
 
-                data = data | temp;
+                    data = data | temp;
                 end
 
                 vif.data <= data;
@@ -71,6 +72,7 @@
             vif.data   <= 0;
             vif.offset <= 0;
             vif.size   <= 0;
+
         endfunction
 
     endclass

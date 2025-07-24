@@ -1,15 +1,15 @@
 `ifndef CFS_MD_DRIVER_SV
     `define CFS_MD_DRIVER_SV
 
-    class cfs_md_driver#(type ITEM_DRV = cfs_md_item_drv) extends uvm_driver#(.REQ(ITEM_DRV)) implements cfs_md_reset_handler;
+    class cfs_md_driver#(int unsigned DATA_WIDTH = 32, type ITEM_DRV = cfs_md_item_drv) extends uvm_driver#(.REQ(ITEM_DRV)) implements cfs_md_reset_handler;
 
         //Pointer to agent configuration
-        cfs_md_agent_config agent_config;
+        cfs_md_agent_config#(DATA_WIDTH) agent_config;
 
         //process for drive_transactions() task
         protected process process_drive_transactions;
 
-        `uvm_component_param_utils(cfs_md_driver#(ITEM_DRV))
+        `uvm_component_param_utils(cfs_md_driver#(DATA_WIDTH, ITEM_DRV))
 
         function new(string name = "", uvm_component parent);
             super.new(name, parent);
