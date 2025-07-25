@@ -18,12 +18,12 @@
         virtual task run_phase(uvm_phase phase);
             forever begin
                 fork
-                begin
-                    wait_reset_end();
-                    drive_transactions();
+                    begin
+                        wait_reset_end();
+                        drive_transactions();
 
-                    disable fork;
-                end
+                        disable fork;
+                    end
                 join
             end
         endtask

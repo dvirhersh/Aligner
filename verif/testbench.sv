@@ -2,7 +2,7 @@
 
 module testbench();
 
-    localparam ALGN_DATA_WIDTH = 32;
+    localparam ALGN_DATA_WIDTH = `CFS_ALGN_TEST_ALGN_DATA_WIDTH;
 
     import uvm_pkg::*;
     import cfs_algn_test_pkg::*;

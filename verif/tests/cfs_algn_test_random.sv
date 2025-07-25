@@ -22,11 +22,16 @@
                 end
             join_none
 
-            repeat(4) begin
+            repeat(13) begin
                 cfs_md_sequence_simple_master seq_simple = cfs_md_sequence_simple_master::type_id::create("seq_simple");
                 seq_simple.set_sequencer(env.md_rx_agent.sequencer);
 
-                void'(seq_simple.randomize());
+                void'(seq_simple.randomize() with {
+                    seq_simple.item.data.size()      == env.md_rx_agent.sequencer.get_data_width() / 8;
+                    seq_simple.item.offset           == 0;
+                    seq_simple.item.pre_drive_delay  == 0;
+                    seq_simple.item.post_drive_delay == 0;
+                });
 
                 seq_simple.start(env.md_rx_agent.sequencer);
             end

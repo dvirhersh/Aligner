@@ -1,12 +1,12 @@
 `ifndef CFS_MD_DRIVER_SLAVE_SV
     `define CFS_MD_DRIVER_SLAVE_SV
 
-    class cfs_md_driver_slave #(int unsigned DATA_WIDTH = 32) extends cfs_md_driver #(.DATA_WIDTH(DATA_WIDTH), .ITEM_DRV  (cfs_md_item_drv_slave));
+    class cfs_md_driver_slave#(int unsigned DATA_WIDTH = 32) extends cfs_md_driver#(.DATA_WIDTH(DATA_WIDTH), .ITEM_DRV(cfs_md_item_drv_slave));
 
         //Pointer to the agent configuration component
-        cfs_md_agent_config_slave #(DATA_WIDTH) agent_config;
+        cfs_md_agent_config_slave#(DATA_WIDTH) agent_config;
 
-        typedef virtual cfs_md_if #(DATA_WIDTH) cfs_md_vif;
+        typedef virtual cfs_md_if#(DATA_WIDTH) cfs_md_vif;
 
         `uvm_component_param_utils(cfs_md_driver_slave#(DATA_WIDTH))
 
@@ -17,11 +17,11 @@
         virtual function void end_of_elaboration_phase(uvm_phase phase);
             super.end_of_elaboration_phase(phase);
 
-            if (super.agent_config == null) begin
+            if(super.agent_config == null) begin
                 `uvm_fatal("ALGORITHM_ISSUE", $sformatf("At this point the pointer to agent_config from %0s should not be null", get_full_name()))
             end
 
-            if ($cast(agent_config, super.agent_config) == 0) begin
+            if($cast(agent_config, super.agent_config) == 0) begin
                 `uvm_fatal("ALGORITHM_ISSUE", $sformatf("Could not cast %0s to %0s", super.agent_config.get_full_name(), cfs_md_agent_config_slave#(DATA_WIDTH)::type_id::type_name))
             end
 
@@ -34,13 +34,13 @@
 
             `uvm_info("DEBUG", $sformatf("Driving \"%0s\": %0s", item.get_full_name(), item.convert2string()), UVM_NONE)
 
-            if (vif.valid !== 1) begin
+            if(vif.valid !== 1) begin
                 `uvm_error("ALGORITHM_ISSUE", $sformatf("Trying to drive a slave item when there is no item started by the master - item: %0s", item.convert2string()))
             end
 
             vif.ready <= 0;
 
-            for (int i = 0; i < item.length; i++) begin
+            for(int i = 0; i < item.length; i++) begin
                 @(posedge vif.clk);
             end
 

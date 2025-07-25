@@ -26,7 +26,7 @@
                 cfs_md_sequencer_slave#(DATA_WIDTH) sequencer;
 
                 if($cast(sequencer, super.sequencer) == 0) begin
-                    `uvm_fatal("ALGORITHM_ISSUE", $sformatf("Could not cast %0s to %0s", super.sequencer.get_full_name(), cfs_md_sequencer_slave#(DATA_WIDTH)::type_id::type_name))
+                `uvm_fatal("ALGORITHM_ISSUE", $sformatf("Could not cast %0s to %0s", super.sequencer.get_full_name(), cfs_md_sequencer_slave#(DATA_WIDTH)::type_id::type_name))
                 end
 
                 monitor.output_port.connect(sequencer.port_from_mon);

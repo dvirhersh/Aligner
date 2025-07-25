@@ -6,7 +6,7 @@
         typedef virtual cfs_md_if#(DATA_WIDTH) cfs_md_vif;
 
         //Pointer to agent configuration
-        cfs_md_agent_config agent_config;
+        cfs_md_agent_config#(DATA_WIDTH) agent_config;
 
         //Port for sending the collected item
         uvm_analysis_port#(cfs_md_item_mon) output_port;
@@ -72,6 +72,12 @@
             while(vif.ready !== 1) begin
                 @(posedge vif.clk);
                 item.length++;
+
+                if(agent_config.get_has_checks()) begin
+                    if(item.length >= agent_config.get_stuck_threshold()) begin
+                        `uvm_error("PROTOCOL_ERROR", $sformatf("The MD transfer reached the stuck threshold value of %0d", item.length))
+                    end
+                end
             end
 
             item.response = cfs_md_response'(vif.err);

@@ -1,7 +1,6 @@
 `ifndef CFS_MD_DRIVER_MASTER_SV
     `define CFS_MD_DRIVER_MASTER_SV
 
-
     class cfs_md_driver_master#(int unsigned DATA_WIDTH = 32) extends cfs_md_driver#(.DATA_WIDTH(DATA_WIDTH), .ITEM_DRV(cfs_md_item_drv_master));
 
         typedef virtual cfs_md_if#(DATA_WIDTH) cfs_md_vif;
@@ -47,6 +46,8 @@
             vif.size   <= item.data.size();
 
             @(posedge vif.clk);
+            $display("%0t, Dvir debug 1", $time);
+            vif.data <= vif.data + 1;
 
             while(vif.ready !== 1) begin
                 @(posedge vif.clk);

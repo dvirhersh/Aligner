@@ -20,6 +20,10 @@
         //Delay used when detecting start of an MD transaction in the monitor
         local time sample_delay_start_tr;
 
+        //Number of clock cycles after which an MD transfer is considered
+        //stuck and an error is triggered
+        local int unsigned stuck_threshold;
+
         `uvm_component_param_utils(cfs_md_agent_config#(DATA_WIDTH))
 
         function new(string name = "", uvm_component parent);
@@ -29,6 +33,7 @@
             has_coverage          = 1;
             has_checks            = 1;
             sample_delay_start_tr = 1ns;
+            stuck_threshold       = 1000;
         endfunction
 
         //Getter for the MD virtual interface
@@ -92,6 +97,16 @@
             return sample_delay_start_tr;
         endfunction
 
+        //Getter for the stuck threshold
+        virtual function int unsigned get_stuck_threshold();
+            return stuck_threshold;
+        endfunction
+
+        //Setter for stuck threshold
+        virtual function void set_stuck_threshold(int unsigned value);
+            stuck_threshold = value;
+        endfunction
+
         virtual function void start_of_simulation_phase(uvm_phase phase);
             super.start_of_simulation_phase(phase);
 
@@ -108,7 +123,7 @@
                 @(vif.has_checks);
 
                 if(vif.has_checks != get_has_checks()) begin
-                `uvm_error("ALGORITHM_ISSUE", $sformatf("Can not change \"has_checks\" from MD interface directly - use %0s.set_has_checks()", get_full_name()))
+                    `uvm_error("ALGORITHM_ISSUE", $sformatf("Can not change \"has_checks\" from MD interface directly - use %0s.set_has_checks()", get_full_name()))
                 end
             end
         endtask
@@ -122,6 +137,11 @@
 
         //Task for waiting the reset to be finished
         virtual task wait_reset_end();
+            vif.valid  <= 0;
+            vif.data   <= 0;
+            vif.offset <= 0;
+            vif.size   <= 0;
+
             while(vif.reset_n == 0) begin
                 @(posedge vif.clk);
             end
